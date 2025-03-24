@@ -1,8 +1,14 @@
-loguru
-mkdocs
-pip
+langchain
+langchain-community
+langchain-openai
+langchain-experimental
+streamlit
+pandas
+matplotlib
+seaborn
+pygwalker
+jupyterlab
+tiktoken
+tabulate
 python-dotenv
-ruff
-tqdm
-typer
--e .
+langchain-google-genai
