@@ -20,6 +20,8 @@ def main():
         page_icon = "📊",
         layout="centered"
     )
+    st.header("Smart data analysis tool")
+    st.write("## Welcome to our data analysis tool . This tools can assist your daily data analysis task. Please enjoy!!")
     #load llm model 
     llm = load_llm(model_name= MODEL_NAME)
     logger.info("### Successfully loaded {MODEL_NAME} ! ###")
@@ -29,8 +31,22 @@ def main():
    
 
     #initial chat history
+    if "history" not in st.session_state:
+        st.session_state.history = []
+
     #read csv file 
+    if uploaded_file is not None:
+        st.session_state.df = pd.read_csv(uploaded_file)
+        st.write("### Your uploaded file",st.session_state.df.head())
     # create data analysis agent to query with our dât 
+    da_agent = create_pandas_dataframe_agent(
+        llm = llm,
+        df = st.session_state.df,
+        agent_type = "tool-calling",
+        allow_dangerous_code = True,
+        verbose = True,
+        return_intermediate_step = true
+    )
     # input qwuery and process query 
     #Display chat history
 
