@@ -6,14 +6,14 @@ def load_llm(model_name):
         return ChatOpenAI(
             model = model_name,
             temperature = 0.0,
-            max_token = 1000,
+            max_tokens = 1000,
             openai_api_key=os.environ.get("OPEN_API_KEY")
         )
     elif model_name=="gpt-4":
         return ChatOpenAI(
             model = model_name,
             temperature = 0.0,
-            max_token= 1000,
+            max_tokens= 1000,
             openai_api_key=os.environ.get("OPEN_API_KEY")
         )
 #có thể dùng grmini khi import gemini hay bất cứ con AI nào khác
