@@ -8,13 +8,41 @@ from langchain_experimental.agents.agent_toolkits.pandas.base import create_pand
 from langchain_openai import ChatOpenAI
 from src.logger.base import BaseLogger
 from src.models.llms import load_llm
+from src.utils import execute_plt_code
 #load enviroment
 load_dotenv()
 logger = BaseLogger()
 MODEL_NAME = "gpt-3.5-turbo"
 
-def process_query(da_agent,query):
-    pass 
+def process_query(da_agent, query):
+    response = da_agent(query)
+
+    action = response["intermediate_steps"][-1][0].tool_input["query"]
+
+    if "plt" in action:
+        st.write(response["output"])
+
+        fig = execute_plt_code(action, df=st.session_state.df)
+        if fig:
+            st.pyplot(fig)
+
+        st.write("**Executed code:**")
+        st.code(action)
+
+        to_display_string = response["output"] + "\n" + f"```python\n{action}\n```"
+        st.session_state.history.append((query, to_display_string))
+
+    else:
+        st.write(response["output"])
+        st.session_state.history.append((query, response["output"]))
+
+def display_chat_history():
+    st.markdown("## Chat History: ")
+    for i, (q, r) in enumerate(st.session_state.history):
+        st.markdown(f"**Query: {i+1}:** {q}")
+        st.markdown(f"**Response: {i+1}:** {r}")
+        st.markdown("---")
+
 def main():
     #set up streamlit interface 
     st.set_page_config(
@@ -54,10 +82,10 @@ def main():
 
     if st.button("Run Query"):
         with st.spinner("Processing ..."):
-            process_query(da_agent,query)
+            process_query(da_agent, query)
     #Display chat history
-
+    st.divider()
+    display_chat_history()
 
 if __name__ =="__main__":
     main()
-st.header("TEST")
