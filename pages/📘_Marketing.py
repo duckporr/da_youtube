@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import io
 import base64
+import mysql.connector
+from sqlalchemy import create_engine
 import matplotlib.pyplot as plt 
 from dotenv import load_dotenv
 from langchain_experimental.agents.agent_toolkits.pandas.base import create_pandas_dataframe_agent 
@@ -11,16 +13,35 @@ from src.logger.base import BaseLogger
 from src.models.llms import load_llm
 from src.utils import execute_plt_code
 from src.components.chat_promt import chat_prompt
+from Authentication import is_user_authenticated
 #load enviroment
 load_dotenv()
 logger = BaseLogger()
 MODEL_NAME = "gpt-3.5-turbo"
+if not is_user_authenticated():
+    st.warning("⛔ Bạn cần đăng nhập để truy cập trang này.")
+    st.stop()
+def load_data_from_mysql():
+    connection_string = "mysql+mysqlconnector://root:123456@127.0.0.1/clothing_company"
+    engine = create_engine(connection_string)
 
+    query = "SELECT * FROM clothing_company.hieuquachiendich_standalone"
+    df = pd.read_sql(query, engine)
+
+    return df
 
 def process_query(da_agent, query):
     response = da_agent(query)
 
-    action = response["intermediate_steps"][-1][0].tool_input["query"]
+    intermediate_steps = response.get("intermediate_steps", [])
+
+    if intermediate_steps and len(intermediate_steps[-1]) > 0:
+        try:
+            action = intermediate_steps[-1][0].tool_input["query"]
+        except (KeyError, AttributeError):
+            action = ""
+    else:
+        action = ""
 
     if "plt" in action:
         st.write(response["output"])
@@ -40,7 +61,7 @@ def process_query(da_agent, query):
         st.session_state.history.append((query, response["output"]))
 
 def display_chat_history():
-    st.markdown("## Chat History: ")
+    st.markdown("## Lịch sử chat: ")
     for i, (q, r) in enumerate(st.session_state.history):
         st.markdown(f"**Query: {i+1}:** {q}")
         st.markdown(f"**Response: {i+1}:** {r}")
@@ -51,8 +72,8 @@ def main():
     #set up streamlit interface 
  
     st.set_page_config(
-        page_title = "📊 Smart Data Analysis Tool",
-        page_icon = "📊",
+        page_title = "📘 Marketing",
+        page_icon = "📘",
         layout="centered"
        
     )
@@ -79,41 +100,38 @@ def main():
         </style>
         <div class="background-container"></div>
     """, unsafe_allow_html=True)
-    st.header("Smart data analysis tool")
-    st.write("## Welcome to our data analysis tool . This tools can assist your daily data analysis task. Please enjoy!!")
+    st.header("Tôi có thể giúp gì cho bạn ?")
+    st.write("Đây là phần mềm hỗ trợ bạn quản trị doanh nghiệp. Với trang này, AI sẽ hỗ trợ bạn cái nhìn tổng quan về dữ liệu Marketing . ")
     #load llm model 
     llm = load_llm(model_name= MODEL_NAME)
-    #upload csv file 
-    with st.sidebar:
-        uploaded_file = st.file_uploader("Upload your csv file here",type = "csv")
-   
-
-    #initial chat history
     if "history" not in st.session_state:
         st.session_state.history = []
     #read csv file 
-    if uploaded_file is not None:
-        st.session_state.df = pd.read_csv(uploaded_file)
-        st.write("### Your uploaded file",st.session_state.df.head())
-    # create data analysis agent to query with our data
-        da_agent = create_pandas_dataframe_agent(
-            llm = llm,
-            df = st.session_state.df,
-            agent_type = "tool-calling",
-            allow_dangerous_code = True,
-            verbose = True,
-            return_intermediate_steps =True,
+    if st.button("Tải dữ liệu từ MySQL"):
+        st.session_state.df = load_data_from_mysql()
+        st.session_state.da_agent = create_pandas_dataframe_agent(
+            llm=llm,
+            df=st.session_state.df,
+            agent_type="tool-calling",
+            allow_dangerous_code=True,
+            verbose=True,
+            return_intermediate_steps=True,
         )
-        logger.info("### Successfully loaded data analysis agent ! ###")
-        # input qwuery and process query 
-        query = st.text_input("Enter your questions : ")
+        st.session_state.data_loaded = True  # Đánh dấu là đã tải dữ liệu
+        logger.info("### Successfully loaded MySQL data and agent! ###")
+
+# Nếu dữ liệu đã được tải → hiển thị dữ liệu và cho nhập câu hỏi
+    if st.session_state.get("data_loaded", False):
+        st.write("### Dữ liệu Marketing", st.session_state.df.head())
+
+        query = st.text_input("Nhập câu hỏi của bạn:")
 
         if st.button("Run Query"):
-            with st.spinner("Processing ..."):
-                process_query(da_agent, query)
+            with st.spinner("Đang xử lý..."):
+                process_query(st.session_state.da_agent, query)  
     #Display chat history
     st.divider()
     display_chat_history()
 
-if __name__ =="__main__":
+if __name__ == "__main__": 
     main()

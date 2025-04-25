@@ -13,11 +13,14 @@ from src.logger.base import BaseLogger
 from src.models.llms import load_llm
 from src.utils import execute_plt_code
 from src.components.chat_promt import chat_prompt
+from Authentication import is_user_authenticated
 #load enviroment
 load_dotenv()
 logger = BaseLogger()
 MODEL_NAME = "gpt-3.5-turbo"
-
+if not is_user_authenticated():
+    st.warning("⛔ Bạn cần đăng nhập để truy cập trang này.")
+    st.stop()
 def load_data_from_mysql():
     connection_string = "mysql+mysqlconnector://root:123456@127.0.0.1/clothing_company"
     engine = create_engine(connection_string)
@@ -69,8 +72,8 @@ def main():
     #set up streamlit interface 
  
     st.set_page_config(
-        page_title = "📊 Smart Data Analysis Tool",
-        page_icon = "📊",
+        page_title = "⌨️ Accountant",
+        page_icon = "⌨️",
         layout="centered"
        
     )
@@ -130,5 +133,5 @@ def main():
     st.divider()
     display_chat_history()
 
-if __name__ =="__main__":
+if __name__ == "__main__": 
     main()

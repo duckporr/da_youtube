@@ -7,7 +7,7 @@ def main():
 
     # Set up Streamlit interface
     st.set_page_config(
-        page_title="📈 Interactive Visualization Tool", page_icon="📈", layout="wide"
+        page_title="📈 Trực quan hóa dữ liệu", page_icon="📈", layout="wide"
     )
     def get_base64_image(file_path):
         with open(file_path, "rb") as f:
@@ -32,8 +32,8 @@ def main():
         </style>
         <div class="background-container"></div>
     """, unsafe_allow_html=True)
-    st.header("📈 Interactive Visualization Tool")
-    st.write("### Welcome to interactive visualization tool. Please enjoy !")
+    st.header("📈 Trực quan hóa dữ liệu bằng biểu đồ ")
+    st.write("### Trang này hỗ trợ bạn có cái nhìn tổng quan về từng cột dữ liệu bằng cách vẽ biểu đồ giữa các cột mà bạn mong muốn")
 
     # Render pygwalker
     if st.session_state.get("df") is not None:
@@ -41,8 +41,8 @@ def main():
         pyg_app.explorer()
 
     else:
-        st.info("Please upload a dataset to begin using the interactive visualization tools")
+        st.info("Dữ liệu để vẽ chưa có , hãy tải dữ liệu lên từ các trang kế toán , kho , marketing , dữ liệu bán hàng để bắt đầu trải nghiệm ")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()

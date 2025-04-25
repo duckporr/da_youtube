@@ -13,16 +13,19 @@ from src.logger.base import BaseLogger
 from src.models.llms import load_llm
 from src.utils import execute_plt_code
 from src.components.chat_promt import chat_prompt
+from Authentication import is_user_authenticated
 #load enviroment
 load_dotenv()
 logger = BaseLogger()
 MODEL_NAME = "gpt-3.5-turbo"
-
+if not is_user_authenticated():
+    st.warning("⛔ Bạn cần đăng nhập để truy cập trang này.")
+    st.stop()
 def load_data_from_mysql():
     connection_string = "mysql+mysqlconnector://root:123456@127.0.0.1/clothing_company"
     engine = create_engine(connection_string)
 
-    query = "SELECT * FROM clothing_company.hieuquachiendich_standalone"
+    query = "SELECT * FROM clothing_company.tongketdoanhsonhanvien;"
     df = pd.read_sql(query, engine)
 
     return df
@@ -69,8 +72,8 @@ def main():
     #set up streamlit interface 
  
     st.set_page_config(
-        page_title = "📊 Smart Data Analysis Tool",
-        page_icon = "📊",
+        page_title = "📞 Sales",
+        page_icon = "📞",
         layout="centered"
        
     )
@@ -98,7 +101,7 @@ def main():
         <div class="background-container"></div>
     """, unsafe_allow_html=True)
     st.header("Tôi có thể giúp gì cho bạn ?")
-    st.write("Đây là phần mềm hỗ trợ bạn quản trị doanh nghiệp. Với trang này, AI sẽ hỗ trợ bạn cái nhìn tổng quan về dữ liệu Marketing . ")
+    st.write("Đây là phần mềm hỗ trợ bạn quản trị doanh nghiệp. Với trang này, AI sẽ hỗ trợ bạn cái nhìn tổng quan về dữ liệu kinh doanh bán hàng . ")
     #load llm model 
     llm = load_llm(model_name= MODEL_NAME)
     if "history" not in st.session_state:
@@ -119,7 +122,7 @@ def main():
 
 # Nếu dữ liệu đã được tải → hiển thị dữ liệu và cho nhập câu hỏi
     if st.session_state.get("data_loaded", False):
-        st.write("### Dữ liệu Marketing", st.session_state.df.head())
+        st.write("### Dữ liệu Sales", st.session_state.df.head())
 
         query = st.text_input("Nhập câu hỏi của bạn:")
 
@@ -130,5 +133,5 @@ def main():
     st.divider()
     display_chat_history()
 
-if __name__ =="__main__":
+if __name__ == "__main__": 
     main()
