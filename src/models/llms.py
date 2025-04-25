@@ -16,7 +16,6 @@ def load_llm(model_name):
             max_tokens= 1000,
             openai_api_key=os.environ.get("OPEN_API_KEY")
         )
-#có thể dùng grmini khi import gemini hay bất cứ con AI nào khác
     else:
         raise ValueError(
             "Unknown mode.\
