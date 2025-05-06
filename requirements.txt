@@ -14,4 +14,3 @@ python-dotenv
 langchain-google-genai
 mysql-connector-python
 bcrypt
-re
