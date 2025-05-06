@@ -25,7 +25,7 @@ def load_data_from_mysql():
     connection_string = "mysql+mysqlconnector://root:123456@127.0.0.1/clothing_company"
     engine = create_engine(connection_string)
 
-    query = "SELECT * FROM clothing_company.hieuquachiendich_standalone"
+    query = "SELECT * FROM clothing_company.marketing_expenses;"
     df = pd.read_sql(query, engine)
 
     return df

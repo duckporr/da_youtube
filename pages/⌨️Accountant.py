@@ -25,7 +25,7 @@ def load_data_from_mysql():
     connection_string = "mysql+mysqlconnector://root:123456@127.0.0.1/clothing_company"
     engine = create_engine(connection_string)
 
-    query = "SELECT * FROM clothing_company.transactions"
+    query = "SELECT * FROM clothing_company.accounting_transactions"
     df = pd.read_sql(query, engine)
 
     return df
@@ -120,7 +120,7 @@ def main():
         st.session_state.data_loaded = True  # Đánh dấu là đã tải dữ liệu
         logger.info("### Successfully loaded MySQL data and agent! ###")
 
-# Nếu dữ liệu đã được tải → hiển thị dữ liệu và cho nhập câu hỏi
+
     if st.session_state.get("data_loaded", False):
         st.write("### Dữ liệu kế toán", st.session_state.df.head())
 
